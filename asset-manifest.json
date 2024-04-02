@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/terrain-procedural-generation/static/css/main.553210a2.css",
+    "main.js": "/terrain-procedural-generation/static/js/main.99b0fbf8.js",
+    "index.html": "/terrain-procedural-generation/index.html",
+    "main.553210a2.css.map": "/terrain-procedural-generation/static/css/main.553210a2.css.map",
+    "main.99b0fbf8.js.map": "/terrain-procedural-generation/static/js/main.99b0fbf8.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.553210a2.css",
+    "static/js/main.99b0fbf8.js"
+  ]
+}
