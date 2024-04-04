@@ -2,19 +2,24 @@ import { ThreeElements } from '@react-three/fiber';
 import React, { useEffect, useRef } from 'react';
 import { BufferAttribute, DoubleSide, Mesh, PlaneGeometry } from 'three';
 import { waveSurface } from '../algorithms/WaveSurface';
+import { simplexNoiseTerrain } from '../algorithms/SimplexNosie';
 
-const Surface = (props: ThreeElements['mesh']) => {
+type TerrainType = 'WAVE' | 'SIMPLEX';
+
+const Surface = ({ type, ...props }: { type: TerrainType } & ThreeElements['mesh']) => {
 	const meshRef = useRef<Mesh>(null!);
 	const ref = useRef<PlaneGeometry>(null!);
 
 	const size = 100;
-	const gridSize = 100;
+	const gridSize = 20;
 	const stepSize = 1;
 	const wireframe = false;
 	const flatShading = true;
+	const color = 'darkgreen';
 
 	const vertices: number[] = [];
-	waveSurface(vertices, gridSize, stepSize, 10, 0.3);
+	if (type === 'WAVE') waveSurface(vertices, gridSize, stepSize, 10, 0.3);
+	if (type === 'SIMPLEX') simplexNoiseTerrain(vertices, gridSize, stepSize);
 
 	useEffect(() => {
 		ref.current.setAttribute('position', new BufferAttribute(new Float32Array(vertices), 3));
@@ -25,7 +30,7 @@ const Surface = (props: ThreeElements['mesh']) => {
 			<planeGeometry ref={ref} attach="geometry" args={[size, size, gridSize, gridSize]} />
 			<meshPhongMaterial
 				attach="material"
-				color={'darkgreen'}
+				color={color}
 				side={DoubleSide}
 				wireframe={wireframe}
 				flatShading={flatShading}
