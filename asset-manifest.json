@@ -1,11 +1,13 @@
 {
   "files": {
     "main.css": "/terrain-procedural-generation/static/css/main.5cdc1e0f.css",
-    "main.js": "/terrain-procedural-generation/static/js/main.c098d1b2.js",
+    "main.js": "/terrain-procedural-generation/static/js/main.a3e1a75b.js",
+    "static/media/grass.jpg": "/terrain-procedural-generation/static/media/grass.eac5566104b309403479.jpg",
+    "static/media/rock.jpg": "/terrain-procedural-generation/static/media/rock.1db678b9e08dbf1d422b.jpg",
     "index.html": "/terrain-procedural-generation/index.html"
   },
   "entrypoints": [
     "static/css/main.5cdc1e0f.css",
-    "static/js/main.c098d1b2.js"
+    "static/js/main.a3e1a75b.js"
   ]
 }
