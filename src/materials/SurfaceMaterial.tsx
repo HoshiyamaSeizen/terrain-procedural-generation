@@ -2,8 +2,8 @@ import { ThreeElements, useLoader } from '@react-three/fiber';
 import { RepeatWrapping, TextureLoader } from 'three';
 import React from 'react';
 
-import grassTextureURL from '../textures/grass.jpg';
-import rockTextureURL from '../textures/rock.jpg';
+import grassTextureURL from '../textures/grass.webp';
+import rockTextureURL from '../textures/rock.webp';
 
 const MountainMaterial = (props: ThreeElements['shaderMaterial']) => {
 	const [grassTexture, rockTexture] = useLoader(TextureLoader, [grassTextureURL, rockTextureURL]);

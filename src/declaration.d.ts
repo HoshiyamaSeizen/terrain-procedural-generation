@@ -1,3 +1,3 @@
-declare module '*.jpg';
+declare module '*.webp';
 declare module '*.vert';
 declare module '*.frag';
