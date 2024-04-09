@@ -7,7 +7,7 @@ import Environment from '../Environment';
 const Screen = () => {
 	return (
 		<div className="canvas-container">
-			<Canvas camera={{ position: [0.6, 0.6, 0.6] }}>
+			<Canvas camera={{ position: [0.7, 1, 0.7] }}>
 				<Environment />
 				<Surface type="SIMPLEX" position={[0, 0, 0]} />
 				<OrbitControls target={[0, 0, 0]} />
