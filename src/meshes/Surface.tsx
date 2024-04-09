@@ -9,17 +9,18 @@ type TerrainType = 'WAVE' | 'SIMPLEX';
 
 const Surface = ({ type, ...props }: { type: TerrainType } & ThreeElements['mesh']) => {
 	const ref = useRef<PlaneGeometry>(null!);
-	const gridSize = 100;
-	const stepSize = 1;
+	const gridSize = 50;
 	const wireframe = false;
 	const textures = true;
 	const flatShading = false;
 	const color = 'darkgreen';
-	const amplitude = 2;
+	const amplitude = 0.2;
+	const scale = 1;
+	const levels = 8;
 
 	const vertices: number[] = [];
-	if (type === 'WAVE') waveSurface(vertices, gridSize, stepSize, amplitude, 0.3);
-	if (type === 'SIMPLEX') simplexNoiseTerrain(vertices, gridSize, stepSize, amplitude);
+	if (type === 'WAVE') waveSurface(vertices, gridSize, amplitude, scale, 0.3);
+	if (type === 'SIMPLEX') simplexNoiseTerrain(vertices, gridSize, amplitude, scale, levels);
 
 	useEffect(() => {
 		ref.current.setAttribute('position', new BufferAttribute(new Float32Array(vertices), 3));
@@ -27,7 +28,7 @@ const Surface = ({ type, ...props }: { type: TerrainType } & ThreeElements['mesh
 	}, []);
 
 	return (
-		<mesh {...props}>
+		<mesh {...props} scale={1 / scale}>
 			<planeGeometry ref={ref} attach="geometry" args={[1, 1, gridSize, gridSize]} />
 			{textures ? (
 				<SurfaceMaterial attach="material" side={1} />
