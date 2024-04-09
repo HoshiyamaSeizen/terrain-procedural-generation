@@ -1,5 +1,5 @@
 import { ThreeElements, useLoader } from '@react-three/fiber';
-import { TextureLoader } from 'three';
+import { RepeatWrapping, TextureLoader } from 'three';
 import React from 'react';
 
 import grassTextureURL from '../textures/grass.jpg';
@@ -7,19 +7,29 @@ import rockTextureURL from '../textures/rock.jpg';
 
 const MountainMaterial = (props: ThreeElements['shaderMaterial']) => {
 	const [grassTexture, rockTexture] = useLoader(TextureLoader, [grassTextureURL, rockTextureURL]);
+	const repeat = 10;
+
+	[grassTexture, rockTexture].forEach((texture) => {
+		texture.wrapS = RepeatWrapping;
+		texture.wrapT = RepeatWrapping;
+		texture.repeat.set(repeat, repeat);
+	});
 
 	const uniforms = {
 		grassTexture: { value: grassTexture },
 		rockTexture: { value: rockTexture },
 		slopeThreshold: { value: 0.85 },
+		repeat: { value: repeat },
 	};
 
 	const vertexShader = `    
+  uniform float repeat;
+
   varying vec2 vUv;
   varying vec3 vNormal;
 
   void main() {
-    vUv = uv;
+    vUv = uv * vec2(repeat);
     vNormal = normal;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }

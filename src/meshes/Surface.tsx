@@ -9,9 +9,7 @@ type TerrainType = 'WAVE' | 'SIMPLEX';
 
 const Surface = ({ type, ...props }: { type: TerrainType } & ThreeElements['mesh']) => {
 	const ref = useRef<PlaneGeometry>(null!);
-
-	const size = 100;
-	const gridSize = 20;
+	const gridSize = 100;
 	const stepSize = 1;
 	const wireframe = false;
 	const textures = true;
@@ -30,7 +28,7 @@ const Surface = ({ type, ...props }: { type: TerrainType } & ThreeElements['mesh
 
 	return (
 		<mesh {...props}>
-			<planeGeometry ref={ref} attach="geometry" args={[size, size, gridSize, gridSize]} />
+			<planeGeometry ref={ref} attach="geometry" args={[1, 1, gridSize, gridSize]} />
 			{textures ? (
 				<SurfaceMaterial attach="material" side={1} />
 			) : (
