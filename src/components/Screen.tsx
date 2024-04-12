@@ -10,7 +10,7 @@ const Screen = () => {
 			<Canvas camera={{ position: [0.7, 1.3, 0.7] }}>
 				<Environment />
 				<Surface type="SIMPLEX" position={[0, 0, 0]} />
-				<OrbitControls target={[0, 0, 0]} />
+				<OrbitControls target={[0, 0.3, 0]} />
 				<Stats className="stats" />
 			</Canvas>
 		</div>
