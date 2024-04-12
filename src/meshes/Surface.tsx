@@ -1,9 +1,10 @@
 import { ThreeElements } from '@react-three/fiber';
-import React, { Ref, forwardRef, useEffect, useRef } from 'react';
+import React, { Ref, forwardRef, useEffect, useMemo, useRef, useState } from 'react';
 import { BufferAttribute, DoubleSide, PlaneGeometry } from 'three';
 import { waveSurface } from '../algorithms/WaveSurface';
-import { simplexNoiseTerrain } from '../algorithms/SimplexNosie';
+import { generateNoise, noiseTerrain } from '../algorithms/NoiseSurface';
 import SurfaceMaterial from '../materials/SurfaceMaterial';
+import { button, useControls } from 'leva';
 
 type TerrainType = 'WAVE' | 'SIMPLEX';
 
@@ -15,38 +16,44 @@ const Surface = ({ type, ...props }: { type: TerrainType } & ThreeElements['grou
 		useRef<PlaneGeometry>(null!),
 		useRef<PlaneGeometry>(null!),
 	];
+	const { size, scale, levels, amplitude, wireframe, textures } = useControls({
+		'Generate New': button(() => setSeed(Date.now())),
+		size: { value: 50, min: 2, max: 400, step: 2 },
+		scale: { value: 1, min: 1, max: 10, step: 1 },
+		levels: { value: 3, min: 1, max: 10, step: 1 },
+		amplitude: { value: 0.2, min: 0, max: 1, step: 0.05 },
+		wireframe: { value: false },
+		textures: { value: true },
+	});
 
-	const size = 50;
-	const wireframe = false;
-	const textures = true;
+	const [seed, setSeed] = useState(0);
+	const noise = useMemo(() => generateNoise(), [seed]);
+
 	const flatShading = false;
 	const color = 'darkgreen';
-	const amplitude = 0.2;
-	const scale = 1;
-	const levels = 8;
-
-	const vertices: number[] = [];
-	if (type === 'WAVE') waveSurface(vertices, size, amplitude, scale, 0.3);
-	if (type === 'SIMPLEX') simplexNoiseTerrain(vertices, size, amplitude, scale, levels);
-
-	const sides: [number[], number[], number[], number[]] = [[], [], [], []];
-	for (let i = 0; i < size * size; i++) {
-		const [x, y, z] = vertices.slice(3 * i, 3 * i + 3);
-		const addLine = (side: number[]) => side.push(x, y, z, x, 0, z);
-
-		if (i < size) addLine(sides[0]);
-		if (i >= size * (size - 1)) addLine(sides[1]);
-		if (i % size === 0) addLine(sides[2]);
-		if ((i + 1) % size === 0) addLine(sides[3]);
-	}
 
 	useEffect(() => {
+		const vertices: number[] = [];
+		if (type === 'WAVE') waveSurface(vertices, size, amplitude, scale, 0.3);
+		if (type === 'SIMPLEX') noiseTerrain(noise, vertices, size, amplitude, scale, levels);
+
+		const sides: [number[], number[], number[], number[]] = [[], [], [], []];
+		for (let i = 0; i < size * size; i++) {
+			const [x, y, z] = vertices.slice(3 * i, 3 * i + 3);
+			const addLine = (side: number[]) => side.push(x, y, z, x, 0, z);
+
+			if (i < size) addLine(sides[0]);
+			if (i >= size * (size - 1)) addLine(sides[1]);
+			if (i % size === 0) addLine(sides[2]);
+			if ((i + 1) % size === 0) addLine(sides[3]);
+		}
+
 		ref.current.setAttribute('position', new BufferAttribute(new Float32Array(vertices), 3));
 		ref.current.computeVertexNormals();
 		sideRefs.forEach((ref, i) =>
 			ref.current.setAttribute('position', new BufferAttribute(new Float32Array(sides[i]), 3))
 		);
-	}, []);
+	}, [size, scale, levels, amplitude, wireframe, textures, noise]);
 
 	const Side = forwardRef<PlaneGeometry, { ref: Ref<PlaneGeometry> }>((props, ref) => (
 		<mesh>
@@ -71,7 +78,7 @@ const Surface = ({ type, ...props }: { type: TerrainType } & ThreeElements['grou
 		<group {...props} scale={1 / scale}>
 			<mesh>
 				<planeGeometry ref={ref} attach="geometry" args={[1, 1, size - 1, size - 1]} />
-				{textures ? (
+				{!wireframe && textures ? (
 					<SurfaceMaterial attach="material" side={1} />
 				) : (
 					<meshPhongMaterial
