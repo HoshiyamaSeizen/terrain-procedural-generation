@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/terrain-procedural-generation/static/css/main.5cdc1e0f.css",
-    "main.js": "/terrain-procedural-generation/static/js/main.4e3c5811.js",
+    "main.css": "/terrain-procedural-generation/static/css/main.37141acf.css",
+    "main.js": "/terrain-procedural-generation/static/js/main.dfb81228.js",
     "static/media/grass.webp": "/terrain-procedural-generation/static/media/grass.13e48913c8f9f9f7321c.webp",
     "static/media/rock.webp": "/terrain-procedural-generation/static/media/rock.7d18750faa867a334463.webp",
     "index.html": "/terrain-procedural-generation/index.html"
   },
   "entrypoints": [
-    "static/css/main.5cdc1e0f.css",
-    "static/js/main.4e3c5811.js"
+    "static/css/main.37141acf.css",
+    "static/js/main.dfb81228.js"
   ]
 }
