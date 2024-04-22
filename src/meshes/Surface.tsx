@@ -5,8 +5,9 @@ import { waveSurface } from '../algorithms/WaveSurface';
 import { generateNoise, noiseTerrain } from '../algorithms/NoiseSurface';
 import SurfaceMaterial from '../materials/SurfaceMaterial';
 import { button, useControls } from 'leva';
+import { forceDirectedTerrain, getHistory } from '../algorithms/FDA';
 
-type TerrainType = 'WAVE' | 'SIMPLEX';
+type TerrainType = 'WAVE' | 'SIMPLEX' | 'FDA';
 
 const Surface = ({ type, ...props }: { type: TerrainType } & ThreeElements['group']) => {
 	const ref = useRef<PlaneGeometry>(null!);
@@ -16,15 +17,18 @@ const Surface = ({ type, ...props }: { type: TerrainType } & ThreeElements['grou
 		useRef<PlaneGeometry>(null!),
 		useRef<PlaneGeometry>(null!),
 	];
-	const { size, scale, levels, amplitude, wireframe, textures } = useControls({
+	const state = useControls({
 		'Generate New': button(() => setSeed(Date.now())),
-		size: { value: 50, min: 2, max: 400, step: 2 },
+		iterations: { value: 1, min: 0, max: 10, step: 1 },
+		size: { value: 50, min: 2, max: 70, step: 2 },
 		scale: { value: 1, min: 1, max: 10, step: 1 },
 		levels: { value: 3, min: 1, max: 10, step: 1 },
 		amplitude: { value: 0.2, min: 0, max: 1, step: 0.05 },
 		wireframe: { value: false },
 		textures: { value: true },
 	});
+	const { iterations, size, scale, levels, amplitude, wireframe, textures } = state;
+	const statePrev = useRef(state);
 
 	const [seed, setSeed] = useState(0);
 	const noise = useMemo(() => generateNoise(), [seed]);
@@ -33,9 +37,23 @@ const Surface = ({ type, ...props }: { type: TerrainType } & ThreeElements['grou
 	const color = 'darkgreen';
 
 	useEffect(() => {
-		const vertices: number[] = [];
+		let vertices: number[] = [];
 		if (type === 'WAVE') waveSurface(vertices, size, amplitude, scale, 0.3);
 		if (type === 'SIMPLEX') noiseTerrain(noise, vertices, size, amplitude, scale, levels);
+		if (type === 'FDA') {
+			const needsUpdate =
+				statePrev.current.iterations === iterations &&
+				statePrev.current.wireframe === wireframe &&
+				statePrev.current.textures === textures;
+
+			if (!getHistory(0) || needsUpdate) {
+				forceDirectedTerrain(vertices, size, () =>
+					noiseTerrain(noise, vertices, size, amplitude, scale, levels)
+				);
+			}
+			vertices = getHistory(iterations);
+			statePrev.current = state;
+		}
 
 		const sides: [number[], number[], number[], number[]] = [[], [], [], []];
 		for (let i = 0; i < size * size; i++) {
@@ -53,7 +71,7 @@ const Surface = ({ type, ...props }: { type: TerrainType } & ThreeElements['grou
 		sideRefs.forEach((ref, i) =>
 			ref.current.setAttribute('position', new BufferAttribute(new Float32Array(sides[i]), 3))
 		);
-	}, [size, scale, levels, amplitude, wireframe, textures, noise]);
+	}, [state, noise]);
 
 	const Side = forwardRef<PlaneGeometry, { ref: Ref<PlaneGeometry> }>((props, ref) => (
 		<mesh>
