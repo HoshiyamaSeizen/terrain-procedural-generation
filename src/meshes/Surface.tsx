@@ -4,7 +4,7 @@ import { BufferAttribute, DoubleSide, PlaneGeometry } from 'three';
 import { waveSurface } from '../algorithms/WaveSurface';
 import { generateNoise, noiseTerrain } from '../algorithms/NoiseSurface';
 import SurfaceMaterial from '../materials/SurfaceMaterial';
-import { button, useControls } from 'leva';
+import { button, folder, useControls } from 'leva';
 import { forceDirectedTerrain, getHistory } from '../algorithms/FDA';
 
 type TerrainType = 'WAVE' | 'SIMPLEX' | 'FDA';
@@ -19,15 +19,26 @@ const Surface = ({ type, ...props }: { type: TerrainType } & ThreeElements['grou
 	];
 	const state = useControls({
 		'Generate New': button(() => setSeed(Date.now())),
-		iterations: { value: 1, min: 0, max: 10, step: 1 },
-		size: { value: 50, min: 2, max: 70, step: 2 },
-		scale: { value: 1, min: 1, max: 10, step: 1 },
-		levels: { value: 3, min: 1, max: 10, step: 1 },
-		amplitude: { value: 0.2, min: 0, max: 1, step: 0.05 },
-		wireframe: { value: false },
-		textures: { value: true },
+		FDA: folder({
+			iterations: { value: 1, min: 0, max: 10, step: 1 },
+			k_g: { value: 0.05, min: 0, max: 0.2, step: 0.01 },
+			k_s: { value: 0.1, min: 0, max: 0.2, step: 0.01 },
+			k_r: { value: 0.04, min: 0, max: 0.2, step: 0.01 },
+			reach: { value: 10, min: 0, max: 20, step: 1 },
+		}),
+		'Initial Terrain': folder({
+			size: { value: 50, min: 2, max: 70, step: 2 },
+			scale: { value: 1, min: 1, max: 10, step: 1 },
+			levels: { value: 3, min: 1, max: 10, step: 1 },
+			amplitude: { value: 0.2, min: 0, max: 1, step: 0.05 },
+		}),
+		Appearance: folder({
+			wireframe: { value: false },
+			textures: { value: true },
+		}),
 	});
-	const { iterations, size, scale, levels, amplitude, wireframe, textures } = state;
+	const { iterations, size, scale, levels, amplitude, wireframe, textures, k_g, k_s, k_r, reach } =
+		state;
 	const statePrev = useRef(state);
 
 	const [seed, setSeed] = useState(0);
@@ -47,8 +58,11 @@ const Surface = ({ type, ...props }: { type: TerrainType } & ThreeElements['grou
 				statePrev.current.textures === textures;
 
 			if (!getHistory(0) || needsUpdate) {
-				forceDirectedTerrain(vertices, size, () =>
-					noiseTerrain(noise, vertices, size, amplitude, scale, levels)
+				forceDirectedTerrain(
+					vertices,
+					size,
+					() => noiseTerrain(noise, vertices, size, amplitude, scale, levels),
+					{ k_g, k_s, k_r, reach }
 				);
 			}
 			vertices = getHistory(iterations);
