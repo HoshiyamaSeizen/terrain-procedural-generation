@@ -20,10 +20,11 @@ const Surface = ({ type, ...props }: { type: TerrainType } & ThreeElements['grou
 	const state = useControls({
 		'Generate New': button(() => setSeed(Date.now())),
 		FDA: folder({
+			enabled: { value: true },
 			iterations: { value: 1, min: 0, max: 10, step: 1 },
-			k_g: { value: 0.05, min: 0, max: 0.2, step: 0.01 },
-			k_s: { value: 0.1, min: 0, max: 0.2, step: 0.01 },
-			k_r: { value: 0.04, min: 0, max: 0.2, step: 0.01 },
+			k_g: { value: 0.02, min: 0, max: 0.2, step: 0.01 },
+			k_s: { value: 0.04, min: 0, max: 0.2, step: 0.01 },
+			k_r: { value: 0.1, min: 0, max: 0.2, step: 0.01 },
 			reach: { value: 10, min: 0, max: 20, step: 1 },
 		}),
 		'Initial Terrain': folder({
@@ -37,8 +38,20 @@ const Surface = ({ type, ...props }: { type: TerrainType } & ThreeElements['grou
 			textures: { value: true },
 		}),
 	});
-	const { iterations, size, scale, levels, amplitude, wireframe, textures, k_g, k_s, k_r, reach } =
-		state;
+	const {
+		iterations,
+		size,
+		scale,
+		levels,
+		amplitude,
+		wireframe,
+		textures,
+		k_g,
+		k_s,
+		k_r,
+		reach,
+		enabled,
+	} = state;
 	const statePrev = useRef(state);
 
 	const [seed, setSeed] = useState(0);
@@ -50,8 +63,9 @@ const Surface = ({ type, ...props }: { type: TerrainType } & ThreeElements['grou
 	useEffect(() => {
 		let vertices: number[] = [];
 		if (type === 'WAVE') waveSurface(vertices, size, amplitude, scale, 0.3);
-		if (type === 'SIMPLEX') noiseTerrain(noise, vertices, size, amplitude, scale, levels);
-		if (type === 'FDA') {
+		else if (type === 'SIMPLEX' || !enabled)
+			noiseTerrain(noise, vertices, size, amplitude, scale, levels);
+		else if (type === 'FDA') {
 			const needsUpdate =
 				statePrev.current.iterations === iterations &&
 				statePrev.current.wireframe === wireframe &&
