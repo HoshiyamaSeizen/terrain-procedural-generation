@@ -20,7 +20,7 @@ const Surface = ({ type, ...props }: { type: TerrainType } & ThreeElements['grou
 	const state = useControls({
 		'Generate New': button(() => setSeed(Date.now())),
 		FDA: folder({
-			enabled: { value: true },
+			enabled: { value: false },
 			iterations: { value: 1, min: 0, max: 10, step: 1 },
 			k_g: { value: 0.02, min: 0, max: 0.2, step: 0.01 },
 			k_s: { value: 0.04, min: 0, max: 0.2, step: 0.01 },
